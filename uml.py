@@ -35,7 +35,7 @@ SQL_TABLES = '''
         relkind in ('r', 'v', 'm', 'f')
         and nspname !~ 'pg_catalog|pg_toast|pg_temp_[0-9]+|information_schema'
 '''
-SQL_TABLES += ' and pg_class.oid in (34328, 19930423, 35358, 35601, 24474327, 37183, 34864, 34423, 34987)'
+# SQL_TABLES += ' and pg_class.oid in (34328, 19930423, 35358, 35601, 24474327, 37183, 34864, 34423, 34987)'
 
 SQL_COLUMNS = '''
     select

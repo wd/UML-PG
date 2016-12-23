@@ -7,9 +7,16 @@ A tool which can auto run through PostgreSQL system tables and returns HTML, DOT
 * Python 2 or 3
 * psycopg2
 * jinja2
+* [Graphviz](http://www.graphviz.org/) dot command if you want to use dot to generate your UML picture.
 
+Install python modules use `pip` command.
 ```
 $ pip install psycopg2 jinja2
+```
+
+Install graphviz use `brew` command in MacOS.
+```
+$ brew install graphviz
 ```
 
 ## Usage

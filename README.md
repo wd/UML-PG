@@ -2,6 +2,8 @@
 
 A tool which can auto run through PostgreSQL system tables and returns HTML, DOT, which describe the database.
 
+![sample.png](https://github.com/wd/UML-PG/raw/master/sample.png)
+
 ## Requirements
 
 * Python 2 or 3

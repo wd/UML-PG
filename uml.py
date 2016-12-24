@@ -45,7 +45,7 @@ SQL_COLUMNS = '''
         b.column_name,
         col_description( a.oid, ordinal_position ) as desc,
         b.udt_name || coalesce( '(' || character_maximum_length || ')', '' ) as column_type,
-        is_nullable,
+        case is_nullable when 'YES' then True else False end as is_nullable,
         column_default
     from
         pg_catalog.pg_class a
@@ -101,10 +101,12 @@ SQL_FK = '''
 
 SQL_INHERIT = '''
     select
+        parcla.oid as par_oid,
         parnsp.nspname as par_schemaname,
         parcla.relname as par_tablename,
+        chlcla.oid as cll_oid,
         chlnsp.nspname as chl_schemaname,
-        chlcla.relname as chl_tablename,
+        chlcla.relname as chl_tablename
     from pg_catalog.pg_inherits
     join pg_catalog.pg_class as chlcla on (chlcla.oid = inhrelid)
     join pg_catalog.pg_namespace as chlnsp on (chlnsp.oid = chlcla.relnamespace)
@@ -144,16 +146,16 @@ digraph G {
     {%- endif -%}
 
     {%- if show_table %}
-    {{ table.tablename }} [
+    {{ table.outputname | replace('.', '_') }} [
         label = <
             <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
-                <TR><TD BGCOLOR="yellow" ALIGN="center" COLSPAN="2">{{ table.tablename }}</TD></TR>
-                <tr><td colspan="2" height="1"></td></tr>
+                <TR><TD BGCOLOR="yellow" ALIGN="center" COLSPAN="3">{{ table.outputname }}</TD></TR>
+                <tr><td colspan="3" height="1"></td></tr>
               {% for column in table.columns -%}
 
                 {%- set show_col = False -%}
-                {%- if oid in simple_columns -%}
-                  {%- if column.colname in simple_columns[oid] -%}
+                {%- if oid in key_columns -%}
+                  {%- if column.colname in key_columns[oid] -%}
                     {%- set show_col = True -%}
                   {%- endif -%}
                 {%- else -%}
@@ -161,17 +163,31 @@ digraph G {
                 {%- endif -%}
 
                 {%- if show_col %}
-                <TR><TD ALIGN="LEFT" PORT="{{ column.colname }}">
-                        {%- if column.colname == table.pk %}* {% endif %}{{ column.colname }}</TD>
+                <TR>
+                    <TD ALIGN="LEFT" PORT="{{ column.colname }}">
+                        {%- if column.colname == table.pk %}#{% elif not column.is_nullable %}*{% endif -%}
+                    </TD>
+                    <TD ALIGN="LEFT">{{ column.colname }}</TD>
                     <TD ALIGN="LEFT">{{ column.coltype }}</TD>
                 </TR>
                 {% endif -%}
 
               {%- endfor %}
-                <tr><td colspan="2" height="1"></td></tr>
+              {%- if table.uk -%}
+                <tr><td colspan="3" height="1"></td></tr>
+              {%- endif -%}
               {%- for uk in table.uk %}
-                <tr><td colspan="2">Unique({{ uk.columns }})</td></tr>
+                <tr><td colspan="3">Unique({{ uk.columns }})</td></tr>
               {%- endfor %}
+
+              {%- if show_constraint -%}
+              {%- if table.checks -%}
+                <tr><td colspan="3" height="1"></td></tr>
+              {%- endif -%}
+              {%- for check in table.checks %}
+                <tr><td colspan="3">{{ check.cons_src }}</td></tr>
+              {%- endfor -%}
+              {%- endif %}
             </TABLE>
         >
     ];
@@ -179,9 +195,86 @@ digraph G {
     {%- endfor %}
 
     {% for fk in fks -%}
-        {{ fk.from_table}}:{{ fk.from_col }} -> {{ fk.to_table }}:{{ fk.to_col }};
+        {{ fk.from_outputname|replace('.', '_') }}:{{ fk.from_col }}
+           -> {{ fk.to_outputname|replace('.', '_') }}:{{ fk.to_col }};
+    {% endfor -%}
+
+    {% for ih in table_inherits -%}
+        {{ ih.par_outputname|replace('.', '_') }}
+           -> {{ ih.chl_outputname|replace('.', '_') }}[color="blue" style="dashed"];
     {% endfor %}
 }
+'''
+
+HTML_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="zh-CN" class="">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit" />
+<title>UML-PG</title>
+</head>
+<body>
+    {% for oid, table in tables.items() -%}
+
+    {%- set show_table = False -%}
+    {%- if related_tables -%}
+      {%- if oid in related_tables -%}
+        {%- set show_table = True -%}
+      {%- endif -%}
+    {%- else -%}
+      {%- set show_table = True -%}
+    {%- endif -%}
+
+    {%- if show_table %}
+        <div style="margin:20px 0px 20px 0px">
+            <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" id="{{ table.outputname | replace('.', '_') }}">
+                <TR><TD BGCOLOR="yellow" ALIGN="center" COLSPAN="3">{{ table.outputname }}</TD></TR>
+                <tr><td colspan="3" height="1"></td></tr>
+              {% for column in table.columns -%}
+
+                {%- set show_col = False -%}
+                {%- if oid in key_columns -%}
+                  {%- if column.colname in key_columns[oid] -%}
+                    {%- set show_col = True -%}
+                  {%- endif -%}
+                {%- else -%}
+                  {%- set show_col = True -%}
+                {%- endif -%}
+
+                {%- if show_col %}
+                <TR>
+                    <TD ALIGN="LEFT" PORT="{{ column.colname }}">
+                        {%- if column.colname == table.pk %}#{% elif not column.is_nullable %}*{% endif -%}
+                    </TD>
+                    <TD ALIGN="LEFT">{{ column.colname }}</TD>
+                    <TD ALIGN="LEFT">{{ column.coltype }}</TD>
+                </TR>
+                {% endif -%}
+
+              {%- endfor %}
+              {%- if table.uk -%}
+                <tr><td colspan="3" height="1"></td></tr>
+              {%- endif -%}
+              {%- for uk in table.uk %}
+                <tr><td colspan="3">Unique({{ uk.columns }})</td></tr>
+              {%- endfor %}
+
+              {%- if show_constraint -%}
+              {%- if table.checks -%}
+                <tr><td colspan="3" height="1"></td></tr>
+              {%- endif -%}
+              {%- for check in table.checks %}
+                <tr><td colspan="3">{{ check.cons_src }}</td></tr>
+              {%- endfor -%}
+              {%- endif %}
+            </TABLE>
+        </div>
+    {% endif -%}
+    {%- endfor %}
+</body>
+</html>
 '''
 
 
@@ -232,30 +325,35 @@ class DB():
 class PGUML():
     def __init__(self, opts):
         self.db = DB(dbname=opts.dbname, port=opts.port, host=opts.host, user=opts.user, password=opts.password)
-        self.uml_tree_tables = {}
+        self.uml_tables = {}
         self.uml_fks = []
-        self.uml_simple_columns = {}
+        self.uml_key_columns = {}
         self.uml_related_tables = set()
+        self.uml_table_inherits = []
 
-        self.simple = opts.simple
+        self.only_key_columns = opts.only_key_columns
         self.only_related = opts.only_related
         self.dot_rankdir = opts.dot_rankdir
         self.format = opts.format
+        self.show_constraint = opts.show_constraint
 
     def _collect_data(self):
         self._process_tables()
         self._process_columns()
         self._process_pk_uk()
         self._process_fk()
+        self._process_checks()
+        self._process_inherits()
 
     def _process_tables(self):
         rows = self.db.execute_sql(SQL_TABLES)
         for row in rows:
             oid, schema, tablename, tabledesc, reltype = row
-            self.uml_simple_columns[oid] = set()
-            self.uml_tree_tables[oid] = {
+            self.uml_key_columns[oid] = set()
+            self.uml_tables[oid] = {
                 'schema': schema,
                 'tablename': tablename,
+                'outputname': "{}.{}".format(schema, tablename) if schema != 'public' else tablename,
                 'tabledesc': tabledesc,
                 'reltype': reltype,
                 'columns': [],
@@ -268,9 +366,9 @@ class PGUML():
         rows = self.db.execute_sql(SQL_COLUMNS)
         for row in rows:
             oid, schema, _, colname, coldesc, coltype, is_nullable, coldefault = row
-            if oid not in self.uml_tree_tables:
+            if oid not in self.uml_tables:
                 continue
-            columns = self.uml_tree_tables[oid]['columns']
+            columns = self.uml_tables[oid]['columns']
             columns.append({
                 'colname': colname,
                 'coldesc': coldesc,
@@ -284,7 +382,7 @@ class PGUML():
         pattern = '.*ON (.*) USING.*\((.*)\)'
         for row in rows:
             oid, cons_name, cons_def, cons_type = row
-            if oid not in self.uml_tree_tables:
+            if oid not in self.uml_tables:
                 continue
             match = re.match(pattern, cons_def)
             if not match:
@@ -292,50 +390,98 @@ class PGUML():
 
             columns = match.group(2)
             if cons_type == 'PK':
-                self.uml_tree_tables[oid]['pk'] = columns  # one pk in one table
+                self.uml_tables[oid]['pk'] = columns  # one pk in one table
             else:
-                self.uml_tree_tables[oid]['uk'].append({
+                self.uml_tables[oid]['uk'].append({
                     'cons_name': cons_name,
                     'columns': columns
                 })
 
             for col in columns.split(', '):
-                self.uml_simple_columns[oid].add(col)
+                self.uml_key_columns[oid].add(col)
 
     def _process_fk(self):
         rows = self.db.execute_sql(SQL_FK)
         for row in rows:
             from_oid, _, from_col_name, to_col_name, to_oid = row
-            if from_oid not in self.uml_tree_tables:
+            if from_oid not in self.uml_tables:
                 continue
             self.uml_fks.append({
-                'from_table': self.uml_tree_tables[from_oid]['tablename'],
+                'from_outputname': self.uml_tables[from_oid]['outputname'],
                 'from_col': from_col_name,
-                'to_table': self.uml_tree_tables[to_oid]['tablename'],
+                'to_outputname': self.uml_tables[to_oid]['outputname'],
                 'to_col': to_col_name
             })
-            self.uml_simple_columns[from_oid].add(from_col_name)
-            self.uml_simple_columns[to_oid].add(to_col_name)
+            self.uml_key_columns[from_oid].add(from_col_name)
+            self.uml_key_columns[to_oid].add(to_col_name)
             self.uml_related_tables.add(from_oid)
             self.uml_related_tables.add(to_oid)
+
+    def _process_inherits(self):
+        rows = self.db.execute_sql(SQL_INHERIT)
+        for row in rows:
+            par_oid, par_schema, par_table, chl_oid, chl_schema, chl_table = row
+            if par_oid not in self.uml_tables:
+                continue
+            self.uml_table_inherits.append({
+                'par_oid': par_oid,
+                'par_schema': par_schema,
+                'par_table': par_table,
+                'par_outputname': "{}.{}".format(par_schema, par_table) if par_schema != 'public' else par_table,
+                'chl_oid': chl_oid,
+                'chl_schema': chl_schema,
+                'chl_table': chl_table,
+                'chl_outputname': "{}.{}".format(chl_schema, chl_table) if chl_schema != 'public' else chl_table,
+            })
+
+            self.uml_related_tables.add(par_oid)
+            self.uml_related_tables.add(chl_oid)
+
+    def _process_checks(self):
+        rows = self.db.execute_sql(SQL_CHECKS)
+        for row in rows:
+            oid, cons_name, consrc = row
+            if oid not in self.uml_tables:
+                continue
+            checks = self.uml_tables[oid]['checks']
+            checks.append({
+                'cons_name': cons_name,
+                'cons_src': consrc
+            })
 
     def _as_dot(self):
         template = Template(DOT_TEMPLATE)
         dot = template.render(
-            tables=self.uml_tree_tables,
+            tables=self.uml_tables,
             fks=self.uml_fks,
-            simple_columns=self.uml_simple_columns if self.simple else set(),
+            key_columns=self.uml_key_columns if self.only_key_columns else set(),
             related_tables=self.uml_related_tables if self.only_related else None,
-            rankdir=self.dot_rankdir
+            rankdir=self.dot_rankdir,
+            show_constraint=self.show_constraint,
+            table_inherits=self.uml_table_inherits
         )
         return dot
+
+    def _as_html(self):
+        template = Template(HTML_TEMPLATE)
+        html = template.render(
+            tables=self.uml_tables,
+            fks=self.uml_fks,
+            key_columns=self.uml_key_columns if self.only_key_columns else set(),
+            related_tables=self.uml_related_tables if self.only_related else None,
+            rankdir=self.dot_rankdir,
+            show_constraint=self.show_constraint,
+            table_inherits=self.uml_table_inherits
+        )
+        return html
 
     def _out_digraph(self):
         if self.format == 'dot':
             dot = self._as_dot()
             print(dot)
         else:
-            print('Not support yet.')
+            html = self._as_html()
+            print(html)
 
     def go(self):
         self._collect_data()
@@ -349,8 +495,9 @@ def main():
     parser.add_argument('--dbname', help='Database name', type=str, default='postgres')
     parser.add_argument('--user', help='Database user', type=str, default='user')
     parser.add_argument('--password', help='Database passowrd', type=str, default='')
-    parser.add_argument('--simple', help='Only show fk and pk columns for table', action="store_true")
+    parser.add_argument('--only-key-columns', help='Only show fk and pk columns for table', action="store_true")
     parser.add_argument('--only-related', help='Only show related tables', action="store_true")
+    parser.add_argument('--show-constraint', help='Show constraint', action="store_true")
     parser.add_argument('--dot-rankdir', help='Rank direction for dot output', type=str,
                         default='LR', choices=["TB", "LR", "BT", "RL"])
     parser.add_argument('--format', help='Output format', type=str, default='dot', choices=['dot', 'html'])

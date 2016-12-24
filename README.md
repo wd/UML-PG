@@ -2,7 +2,11 @@
 
 A tool which can auto run through PostgreSQL system tables and returns HTML, DOT, which describe the database.
 
-![sample.png](https://github.com/wd/UML-PG/raw/master/sample.png)
+![sample2.png](https://github.com/wd/UML-PG/raw/master/sample2.png)
+
+![sample3.png](https://github.com/wd/UML-PG/raw/master/sample3.png)
+
+![sample1.png](https://github.com/wd/UML-PG/raw/master/sample1.png)
 
 ## Requirements
 
@@ -21,13 +25,16 @@ Install graphviz use `brew` command in MacOS.
 $ brew install graphviz
 ```
 
+You also need a user to connect to the database, the use should be the database and all the table's owner at least. To make it more easyer, you can use a super user to run this script.
+
 ## Usage
 
 ```
 $ ./uml.py -h
 usage: uml.py [-h] [--host HOST] [--port PORT] [--dbname DBNAME] [--user USER]
-              [--password PASSWORD] [--simple] [--only-related]
-              [--dot-rankdir {TB,LR,BT,RL}] [--format {dot,html}] [--verbose]
+              [--password PASSWORD] [--only-key-columns] [--only-related]
+              [--show-constraint] [--dot-rankdir {TB,LR,BT,RL}]
+              [--format {dot,html}] [--verbose]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -36,23 +43,20 @@ optional arguments:
   --dbname DBNAME       Database name (default: postgres)
   --user USER           Database user (default: user)
   --password PASSWORD   Database passowrd (default: )
-  --simple              Only show fk and pk columns for table (default: False)
+  --only-key-columns    Only show fk and pk columns for table (default: False)
   --only-related        Only show related tables (default: False)
+  --show-constraint     Show constraint (default: False)
   --dot-rankdir {TB,LR,BT,RL}
                         Rank direction for dot output (default: LR)
   --format {dot,html}   Output format (default: dot)
   --verbose             Output more info (default: False)
 ```
 
-Run command like `./uml.py --host 10.10.8.1 --simple --only-related | dot -T png -o mydb.png`, and then open `mydb.png`.
+Run command like `./uml.py --host 10.10.8.1 --only-key-columns --only-related | dot -T png -o mydb.png`, and then open `mydb.png`.
 
 ## TODO
 
-* Seq, constraint, inheritance, schema test and support
-* HTML output
-* Sample database for test
-* To make clear which permission is needed to run this script
-* Support to specify schema and table name to filter output
+* Need to improve HTML output
 
 ## Ref
 

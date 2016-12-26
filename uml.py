@@ -284,6 +284,17 @@ a:hover, a:focus, a:active {
 <div style='float:right' onclick='toggle_menu(this)'>close</div>
 <div style='float:left'>
     {% for oid, table in tables.items() -%}
+        {%- set show_table = False -%}
+        {%- if related_tables -%}
+          {%- if oid in related_tables -%}
+            {%- set show_table = True -%}
+          {%- endif -%}
+        {%- else -%}
+          {%- set show_table = True -%}
+        {%- endif -%}
+
+        {% if show_table %}
+
         {%- set curr_schema = table.schema -%}
         {%- if curr_schema != prev_schema -%}
         {%- if prev_schema != '' -%}</ul>{%- endif -%}
@@ -292,6 +303,7 @@ a:hover, a:focus, a:active {
         {%- endif -%}
         <li><a href='#{{ table.outputname | replace('.', '_') }}'>{{ table.tablename }}</a></li>
         {%- set prev_schema = curr_schema -%}
+        {%- endif -%}
     {% endfor %}
     {%- if prev_schema != '' -%}</ul>{%- endif -%}
 </div>

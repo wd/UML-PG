@@ -283,8 +283,6 @@ a:hover, a:focus, a:active {
 <div class='menu'>
 <div style='float:right' onclick='toggle_menu(this)'>close</div>
 <div style='float:left'>
-
-
     {% for oid, table in tables.items() -%}
         {%- set curr_schema = table.schema -%}
         {%- if curr_schema != prev_schema -%}
@@ -463,7 +461,7 @@ class PGUML():
                 'schema': schema,
                 'tablename': tablename,
                 'outputname': "{}.{}".format(schema, tablename) if schema != 'public' else tablename,
-                'tabledesc': tabledesc,
+                'tabledesc': tabledesc.decode('utf-8') if tabledesc is not None else '',
                 'reltype': reltype,
                 'columns': [],
                 'checks': [],
@@ -480,7 +478,7 @@ class PGUML():
             columns = self.uml_tables[oid]['columns']
             columns.append({
                 'colname': colname,
-                'coldesc': coldesc or '',
+                'coldesc': coldesc.decode('utf-8') if coldesc is not None else '',
                 'coltype': coltype,
                 'is_nullable': is_nullable,
                 'coldefault': coldefault
@@ -586,10 +584,10 @@ class PGUML():
     def _out_digraph(self):
         if self.format == 'dot':
             dot = self._as_dot()
-            print(dot)
+            print(dot.encode('utf-8'))
         else:
             html = self._as_html()
-            print(html)
+            print(html.encode('utf-8'))
 
     def go(self):
         self._collect_data()

@@ -20,7 +20,7 @@ create table customers (
 
 comment on column customers.sex is 'Sex type for customer, Female or Male';
 comment on column customers.name_ldap is 'User id in LDAP, everyone should be have a unique LDAP name';
-
+comment on column customers.card_no is '用户的卡号(Test Chinese Chars)';
 
 create table products (
     product_id bigserial primary key,

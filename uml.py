@@ -281,8 +281,11 @@ a:hover, a:focus, a:active {
 </head>
 <body>
 <div class='menu'>
-<div style='float:right' onclick='toggle_menu(this)'>close</div>
-<div style='float:left'>
+<div style='float:right'>
+    <span onClick='toggle_menu(this)'>close</span><span> | </span>
+    <span onClick='toggle_pin(this)'>unpin</span>
+</div>
+<div style='float:left' class='real_menu'>
     {% for oid, table in tables.items() -%}
         {%- set show_table = False -%}
         {%- if related_tables -%}
@@ -377,11 +380,21 @@ a:hover, a:focus, a:active {
 </body>
 <script type = "text/javascript">
     function toggle_menu(me) {
-        $(".menu ul").toggle();
+        $(".menu .real_menu").toggle();
         if ( $(me).text() == 'close' ) {
             $(me).text('open');
         } else{
             $(me).text('close');
+        }
+    }
+
+    function toggle_pin(me) {
+        if ( $(me).text() == 'unpin' ) {
+            $(me).text('pin');
+            $(".menu").css('position', 'absolute');
+        } else{
+            $(me).text('unpin');
+            $(".menu").css('position', 'fixed');
         }
     }
 

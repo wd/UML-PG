@@ -18,6 +18,10 @@ create table customers (
     unique(card_no)
 );
 
+comment on column customers.sex is 'Sex type for customer, Female or Male';
+comment on column customers.name_ldap is 'User id in LDAP, everyone should be have a unique LDAP name';
+
+
 create table products (
     product_id bigserial primary key,
     name varchar(100) not null

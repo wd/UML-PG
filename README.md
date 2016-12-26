@@ -2,15 +2,25 @@
 
 A tool which can auto run through PostgreSQL system tables and returns HTML, DOT, which describe the database.
 
-![sample2.png](https://github.com/wd/UML-PG/raw/master/sample2.png)
+Sample output with `--show-constraint`
 
-![sample3.png](https://github.com/wd/UML-PG/raw/master/sample3.png)
+![sample2.png](https://github.com/wd/UML-PG/raw/master/screenshoots/sample2.png)
 
-![sample1.png](https://github.com/wd/UML-PG/raw/master/sample1.png)
+Sample output with `--only-key-columns --only-related`
+
+![sample3.png](https://github.com/wd/UML-PG/raw/master/screenshoots/sample3.png)
+
+Sample output with `--format=html`
+
+![sample4.png](https://github.com/wd/UML-PG/raw/master/screenshoots/sample4.png)
+
+More complicate example
+
+![sample1.png](https://github.com/wd/UML-PG/raw/master/screenshoots/sample1.png)
 
 ## Requirements
 
-* Python 2 or 3
+* Python >= 2.7
 * psycopg2
 * jinja2
 * [Graphviz](http://www.graphviz.org/) dot command if you want to use dot to generate your UML picture.
@@ -53,10 +63,6 @@ optional arguments:
 ```
 
 Run command like `./uml.py --host 10.10.8.1 --only-key-columns --only-related | dot -T png -o mydb.png`, and then open `mydb.png`.
-
-## TODO
-
-* Need to improve HTML output
 
 ## Ref
 

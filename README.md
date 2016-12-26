@@ -12,7 +12,7 @@ Sample output with `--only-key-columns --only-related`
 
 Sample output with `--format=html`
 
-![sample4.png](https://github.com/wd/UML-PG/raw/master/screenshoots/sample4.png)
+![sample4.jpeg](https://github.com/wd/UML-PG/raw/master/screenshoots/sample4.jpeg)
 
 More complicate example
 

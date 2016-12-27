@@ -609,7 +609,7 @@ class PGUML():
     def _out_digraph(self):
         if self.format == 'dot':
             dot = self._as_dot()
-            print(dot.encode('utf-8'))
+            print(dot)
         else:
             html = self._as_html()
             print(html.encode('utf-8'))

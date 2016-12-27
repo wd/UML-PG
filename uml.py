@@ -10,6 +10,7 @@ import re
 from collections import OrderedDict
 from jinja2 import Template
 
+
 default_logging_level = logging.WARNING
 
 SQL_TABLES = '''
@@ -608,11 +609,11 @@ class PGUML():
 
     def _out_digraph(self):
         if self.format == 'dot':
-            dot = self._as_dot()
-            print(dot)
+            output = self._as_dot()
         else:
-            html = self._as_html()
-            print(html.encode('utf-8'))
+            output = self._as_html()
+
+        print(output)
 
     def go(self):
         self._collect_data()

@@ -487,7 +487,7 @@ class PGUML():
                 'schema': schema,
                 'tablename': tablename,
                 'outputname': "{}.{}".format(schema, tablename) if schema != 'public' else tablename,
-                'tabledesc': tabledesc.decode('utf-8') if tabledesc is not None else '',
+                'tabledesc': tabledesc if tabledesc is not None else '',
                 'reltype': reltype,
                 'columns': [],
                 'checks': [],
@@ -504,7 +504,7 @@ class PGUML():
             columns = self.uml_tables[oid]['columns']
             columns.append({
                 'colname': colname,
-                'coldesc': coldesc.decode('utf-8') if coldesc is not None else '',
+                'coldesc': coldesc if coldesc is not None else '',
                 'coltype': coltype,
                 'is_nullable': is_nullable,
                 'coldefault': coldefault

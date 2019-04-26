@@ -20,7 +20,7 @@ More complicate example
 
 ## Requirements
 
-* Python >= 2.7
+* Python3 ( For python2.7 or higher support, download version before commit edf099e4d1be389c21dfe465b70b4f3165a68578 ).
 * psycopg2
 * jinja2
 * [Graphviz](http://www.graphviz.org/) dot command if you want to use dot to generate your UML picture.

@@ -4,19 +4,19 @@ A tool which can auto run through PostgreSQL system tables and returns HTML, DOT
 
 Sample output with `--show-constraint`
 
-![sample2.png](https://github.com/wd/UML-PG/raw/master/screenshoots/sample2.png)
+![sample2.png](https://github.com/wd/UML-PG/raw/master/screenshots/sample2.png)
 
 Sample output with `--only-key-columns --only-related`
 
-![sample3.png](https://github.com/wd/UML-PG/raw/master/screenshoots/sample3.png)
+![sample3.png](https://github.com/wd/UML-PG/raw/master/screenshots/sample3.png)
 
 Sample output with `--format=html`
 
-![sample4.jpeg](https://github.com/wd/UML-PG/raw/master/screenshoots/sample4.jpeg)
+![sample4.jpeg](https://github.com/wd/UML-PG/raw/master/screenshots/sample4.jpeg)
 
 More complicate example
 
-![sample1.png](https://github.com/wd/UML-PG/raw/master/screenshoots/sample1.png)
+![sample1.png](https://github.com/wd/UML-PG/raw/master/screenshots/sample1.png)
 
 ## Requirements
 

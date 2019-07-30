@@ -1,2 +1,2 @@
 psycopg2-binary
-jinja2
+jinja2==2.10.1

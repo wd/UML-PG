@@ -27,7 +27,7 @@ More complicate example
 
 Install python modules use `pip` command.
 ```
-$ pip install psycopg2 jinja2
+$ pip install -r requirements.txt
 ```
 
 Install graphviz use `brew` command in MacOS.

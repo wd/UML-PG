@@ -62,6 +62,7 @@ class DB():
 class PGUML():
     def __init__(self, opts):
         self.db = DB(dbname=opts.dbname, port=opts.port, host=opts.host, user=opts.user, password=opts.password)
+        self.db_name = "{}_{}_{}".format(opts.host, opts.port, opts.dbname)
         self.uml_tables = OrderedDict()
         self.uml_fks = {}
         self.uml_key_columns = {}
@@ -116,7 +117,7 @@ class PGUML():
 
     def _process_pk_uk(self):
         rows = self.db.execute_sql(SQL_PK_UK)
-        pattern = r'.*ON (.*) USING.*((.*))'
+        pattern = r'.*ON (.*) USING.*\((.*)\)'
         for row in rows:
             oid, cons_name, cons_def, cons_type = row
             if oid not in self.uml_tables:
@@ -201,6 +202,7 @@ class PGUML():
     def _as_html(self):
         template = Template(HTML_TEMPLATE)
         html = template.render(
+            db_name=self.db_name,
             tables=self.uml_tables,
             fks=self.uml_fks,
             key_columns=self.uml_key_columns if self.only_key_columns else set(),

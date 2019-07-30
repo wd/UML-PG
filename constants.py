@@ -200,7 +200,7 @@ HTML_TEMPLATE = '''
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <meta name="renderer" content="webkit" />
-<title>UML-PG</title>
+<title>{{ db_name }}</title>
 <script
   src="https://code.jquery.com/jquery-3.1.1.min.js"
   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
@@ -262,6 +262,8 @@ a:hover, a:focus, a:active {
     top:0;
     z-index:10000;
     background-color:#f0f0f0;
+    overflow: auto;
+    height: 100%;
 }
 </style>
 </head>
@@ -272,7 +274,8 @@ a:hover, a:focus, a:active {
     <span onClick='toggle_pin(this)'>unpin</span>
 </div>
 <div style='float:left' class='real_menu'>
-    {% for oid, table in tables.items() -%}
+    {% set ns = namespace(prev_schema='') -%}
+    {%- for oid, table in tables.items() -%}
         {%- set show_table = False -%}
         {%- if related_tables -%}
           {%- if oid in related_tables -%}
@@ -285,16 +288,16 @@ a:hover, a:focus, a:active {
         {% if show_table %}
 
         {%- set curr_schema = table.schema -%}
-        {%- if curr_schema != prev_schema -%}
-        {%- if prev_schema != '' -%}</ul>{%- endif -%}
+        {%- if curr_schema != ns.prev_schema -%}
+        {%- if ns.prev_schema != '' -%}</ul>{%- endif -%}
     <span>{{ curr_schema }}</span>
     <ul>
         {%- endif -%}
         <li><a href='#{{ table.outputname | replace('.', '_') }}'>{{ table.tablename }}</a></li>
-        {%- set prev_schema = curr_schema -%}
+        {%- set ns.prev_schema = curr_schema -%}{{ prev_schema }}
         {%- endif -%}
     {% endfor %}
-    {%- if prev_schema != '' -%}</ul>{%- endif -%}
+    {%- if ns.prev_schema != '' -%}</ul>{%- endif -%}
 </div>
 </div>
 

@@ -124,13 +124,9 @@ digraph G {
 
     {% for oid, table in tables.items() -%}
 
-    {%- set show_table = False -%}
-    {%- if related_tables -%}
-      {%- if oid in related_tables -%}
-        {%- set show_table = True -%}
-      {%- endif -%}
-    {%- else -%}
-      {%- set show_table = True -%}
+    {%- set show_table = True -%}
+    {%- if related_tables and oid not in related_tables -%}
+        {%- set show_table = False -%}
     {%- endif -%}
 
     {%- if show_table %}
@@ -173,7 +169,7 @@ digraph G {
                 <tr><td colspan="3" height="1"></td></tr>
               {%- endif -%}
               {%- for check in table.checks %}
-                <tr><td colspan="3">{{ check.cons_src }}</td></tr>
+                <tr><td colspan="3">{{ check.cons_src | replace('>', '&gt;') | replace('<', '&lt;') }}</td></tr>
               {%- endfor -%}
               {%- endif %}
             </TABLE>
@@ -276,13 +272,9 @@ a:hover, a:focus, a:active {
 <div style='float:left' class='real_menu'>
     {% set ns = namespace(prev_schema='') -%}
     {%- for oid, table in tables.items() -%}
-        {%- set show_table = False -%}
-        {%- if related_tables -%}
-          {%- if oid in related_tables -%}
-            {%- set show_table = True -%}
-          {%- endif -%}
-        {%- else -%}
-          {%- set show_table = True -%}
+        {%- set show_table = True -%}
+        {%- if related_tables and oid not in related_tables -%}
+            {%- set show_table = False -%}
         {%- endif -%}
 
         {% if show_table %}
@@ -303,13 +295,9 @@ a:hover, a:focus, a:active {
 
     {% for oid, table in tables.items() -%}
 
-    {%- set show_table = False -%}
-    {%- if related_tables -%}
-      {%- if oid in related_tables -%}
-        {%- set show_table = True -%}
-      {%- endif -%}
-    {%- else -%}
-      {%- set show_table = True -%}
+    {%- set show_table = True -%}
+    {%- if related_tables and oid not in related_tables -%}
+        {%- set show_table = False -%}
     {%- endif -%}
 
     {%- if show_table %}
